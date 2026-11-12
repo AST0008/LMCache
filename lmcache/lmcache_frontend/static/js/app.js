@@ -222,6 +222,7 @@ function selectProxy(proxy) {
 
 // Load target nodes for selected proxy
 async function loadTargetNodes(proxyName, filteredNodes = null) {
+    const proxy = currentProxy;
     try {
         let nodes;
         if (filteredNodes) {
@@ -232,6 +233,7 @@ async function loadTargetNodes(proxyName, filteredNodes = null) {
             nodes = data.nodes;
         }
 
+        if (currentProxy !== proxy) return;
         const selector = document.getElementById('targetSelector');
         selector.innerHTML = '<option value="">-- Select Target --</option>';
         selector.disabled = false;
@@ -485,6 +487,7 @@ function refreshActiveTab() {
 // Load overview information
 async function loadOverview() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('overviewContent');
     contentDiv.innerHTML = '<div class="spinner-border" role="status">'
@@ -495,6 +498,7 @@ async function loadOverview() {
         const statusResp = await fetch(transformPath('api/status'));
         if (statusResp.ok) {
             const statusData = await statusResp.json();
+            if (currentNode !== node) return;
             renderMpOverview(contentDiv, statusData);
             return;
         }
@@ -502,11 +506,14 @@ async function loadOverview() {
         // not a multiProcess node – fall through
     }
 
+    if (currentNode !== node) return;
+
     // Basic overview for inProcess / legacy nodes
     try {
         const response = await fetch(transformPath('version'));
         const versionInfo = await response.text();
 
+        if (currentNode !== node) return;
         contentDiv.innerHTML = `
             <div class="card">
                 <div class="card-body">
@@ -524,6 +531,7 @@ async function loadOverview() {
             </div>
         `;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.innerHTML = '<div class="alert alert-danger">'
             + 'Failed to load overview: '
             + escapeHtmlStr(error.message) + '</div>';
@@ -740,6 +748,7 @@ function escapeHtmlStr(str) {
 // Load metrics information
 async function loadMetrics() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('metricsContent');
     contentDiv.textContent = 'Loading...';
@@ -747,8 +756,10 @@ async function loadMetrics() {
     try {
         const response = await fetch(transformPath('metrics'));
         const metrics = await response.text();
+        if (currentNode !== node) return;
         contentDiv.textContent = metrics;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load metrics: ${error.message}`;
     }
 }
@@ -756,14 +767,17 @@ async function loadMetrics() {
 // Load threads information
 async function loadThreads() {
     if (!currentNode) return;
+    const node = currentNode;
     const contentDiv = document.getElementById('threadsContent');
     contentDiv.textContent = 'Loading...';
 
     try {
         const response = await fetch(transformPath('threads'));
         const threads = await response.text();
+        if (currentNode !== node) return;
         contentDiv.textContent = threads;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load threads: ${error.message}`;
     }
 }
@@ -771,6 +785,7 @@ async function loadThreads() {
 // Load log level
 async function loadLogLevel() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('logLevelContent');
     const loggerInput = document.getElementById('loggerInput');
@@ -782,9 +797,11 @@ async function loadLogLevel() {
         const response = await fetch(transformPath('loglevel'));
 
         const text = await response.text();
+        if (currentNode !== node) return;
 
         contentDiv.textContent = text;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load log levels: ${error.message}`;
     }
 }
@@ -838,6 +855,7 @@ async function setLogLevel() {
 // Load configuration
 async function loadConfig() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('configContent');
     const configKeyInput = document.getElementById('configKeyInput');
@@ -850,8 +868,10 @@ async function loadConfig() {
     try {
         const response = await fetch(transformPath('conf'));
         const text = await response.text();
+        if (currentNode !== node) return;
         contentDiv.textContent = text;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load configuration: ${error.message}`;
     }
 }
@@ -913,6 +933,7 @@ async function setConfig() {
 // Load meta information
 async function loadMeta() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('metaContent');
     contentDiv.textContent = 'Loading...';
@@ -920,8 +941,10 @@ async function loadMeta() {
     try {
         const response = await fetch(transformPath('meta'));
         const text = await response.text();
+        if (currentNode !== node) return;
         contentDiv.textContent = text;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load meta information: ${error.message}`;
     }
 }
@@ -929,6 +952,7 @@ async function loadMeta() {
 // Load inference information
 async function loadInference() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('inferenceContent');
     contentDiv.textContent = 'Loading...';
@@ -936,8 +960,10 @@ async function loadInference() {
     try {
         const response = await fetch(transformPath('inference_info'));
         const text = await response.text();
+        if (currentNode !== node) return;
         contentDiv.textContent = text;
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load inference information: ${error.message}`;
     }
 }
@@ -946,6 +972,7 @@ async function loadInference() {
 let envVariablesData = null; // Store as object instead of string
 async function loadEnvironment() {
     if (!currentNode) return;
+    const node = currentNode;
 
     const contentDiv = document.getElementById('envContent');
     const searchInput = document.getElementById('envSearchInput');
@@ -955,6 +982,7 @@ async function loadEnvironment() {
     try {
         const response = await fetch(transformPath('env'));
         const text = await response.text();
+        if (currentNode !== node) return;
         
         // Parse JSON and format for display
         try {
@@ -970,6 +998,7 @@ async function loadEnvironment() {
             contentDiv.textContent = text;
         }
     } catch (error) {
+        if (currentNode !== node) return;
         contentDiv.textContent = `Failed to load environment variables: ${error.message}`;
         envVariablesData = null;
     }
@@ -1206,6 +1235,12 @@ async function filterNodesByEnv() {
 // Clear environment filter
 function clearEnvFilter() {
     document.getElementById('envFilterInput').value = '';
+    document.getElementById('proxySearchInput').value = '';
+    document.getElementById('proxySelector').value = '';
+    currentProxy = null;
+    currentNode = null;
+    document.getElementById('currentNode').textContent = 'No Node Selected';
+    clearAllTabs();
     
     // Restore original proxy list
     loadProxies();

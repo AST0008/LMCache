@@ -239,6 +239,11 @@ using the registered host and port allowlist.
 Dashboard Features
 ------------------
 
+The environment filter's **Clear** button resets the proxy and target selection,
+node badge, and diagnostic tab contents. Select a proxy and target again before
+requesting diagnostics.
+
+
 - **Node tree view** — shows all proxies and their child nodes in a
   collapsible tree.
 - **Metrics aggregation** — ``GET /metrics`` on the dashboard aggregates
