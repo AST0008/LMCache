@@ -239,6 +239,13 @@ using the registered host and port allowlist.
 Dashboard Features
 ------------------
 
+The **Config** tab reads MP server configuration from ``GET /config``.
+For embedded servers without that endpoint, it falls back to ``GET /conf``.
+A configuration key selects a top-level MP configuration section or a named
+embedded configuration setting. HTTP errors appear as failures.
+This read behavior does not change configuration writes.
+
+
 - **Node tree view** — shows all proxies and their child nodes in a
   collapsible tree.
 - **Metrics aggregation** — ``GET /metrics`` on the dashboard aggregates

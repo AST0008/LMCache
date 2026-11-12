@@ -835,6 +835,22 @@ async function setLogLevel() {
     }
 }
 
+// Read MP configuration, falling back only when the legacy endpoint is needed.
+async function readConfig(configKey = '') {
+    let response = await fetch(transformPath('config'));
+    if (response.status === 404) {
+        const query = configKey ? `?names=${encodeURIComponent(configKey)}` : '';
+        response = await fetch(transformPath('conf') + query);
+    } else if (response.ok && configKey) {
+        const data = await response.json();
+        return JSON.stringify(configKey in data ? {[configKey]: data[configKey]} : {}, null, 2);
+    }
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+    return response.text();
+}
+
 // Load configuration
 async function loadConfig() {
     if (!currentNode) return;
@@ -848,9 +864,7 @@ async function loadConfig() {
     configValueInput.value = '';
 
     try {
-        const response = await fetch(transformPath('conf'));
-        const text = await response.text();
-        contentDiv.textContent = text;
+        contentDiv.textContent = await readConfig();
     } catch (error) {
         contentDiv.textContent = `Failed to load configuration: ${error.message}`;
     }
@@ -864,13 +878,7 @@ async function getConfig() {
     const configKey = configKeyInput.value.trim();
 
     try {
-        let url = transformPath('conf');
-        if (configKey) {
-            url += `?key=${encodeURIComponent(configKey)}`;
-        }
-        const response = await fetch(url);
-        const text = await response.text();
-        alert(text);
+        alert(await readConfig(configKey));
     } catch (error) {
         alert(`Failed to get configuration: ${error.message}`);
     }
